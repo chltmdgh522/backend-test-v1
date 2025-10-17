@@ -38,11 +38,28 @@ class DataInitializer {
             feeRepo.save(
                 FeePolicyEntity(
                     partnerId = p2.id!!,
-                    effectiveFrom = Instant.parse("2020-01-01T00:00:00Z"),
+                    effectiveFrom = Instant.parse("2021-01-01T00:00:00Z"),
                     percentage = BigDecimal("0.0300"),
                     fixedFee = BigDecimal("100"),
                 ),
             )
+            feeRepo.save(
+                    FeePolicyEntity(
+                            partnerId = p2.id!!,
+                            effectiveFrom = Instant.parse("2022-01-01T00:00:00Z"),
+                            percentage = BigDecimal("0.0200"),
+                            fixedFee = BigDecimal("90"),
+                    ),
+            )
+            feeRepo.save(
+                    FeePolicyEntity(
+                            partnerId = p2.id!!,
+                            effectiveFrom = Instant.parse("2025-01-01T00:00:00Z"),
+                            percentage = BigDecimal("0.0100"),
+                            fixedFee = BigDecimal("50"),
+                    ),
+            )
+
             log.info("Seeded partners: {} and {}", p1.id, p2.id)
         }
     }
