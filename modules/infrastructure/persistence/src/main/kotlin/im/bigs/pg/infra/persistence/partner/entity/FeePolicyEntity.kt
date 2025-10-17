@@ -16,14 +16,14 @@ import java.time.Instant
 @Entity
 @Table(name = "partner_fee_policy")
 class FeePolicyEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
-    @Column(nullable = false)
-    var partnerId: Long,
-    @Column(nullable = false)
-    var effectiveFrom: Instant,
-    @Column(nullable = false, precision = 10, scale = 6)
-    var percentage: BigDecimal,
-    @Column(precision = 15, scale = 0)
-    var fixedFee: BigDecimal? = null,
+        @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var id: Long? = null,
+        @Column(nullable = false)
+        var partnerId: Long = 0, // 기본값 추가
+        @Column(nullable = false)
+        var effectiveFrom: Instant = Instant.now(), // 기본값 추가
+        @Column(nullable = false, precision = 10, scale = 6)
+        var percentage: BigDecimal = BigDecimal.ZERO, // 기본값 추가
+        @Column(precision = 15, scale = 0)
+        var fixedFee: BigDecimal? = null,
 )
