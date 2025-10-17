@@ -29,37 +29,46 @@ class PaymentService(
      * - 현재 예시 구현은 하드코드된 수수료(3% + 100)로 계산합니다.
      * - 과제: 제휴사별 수수료 정책을 적용하도록 개선해 보세요.
      */
+    // 수정된 코드
     override fun pay(command: PaymentCommand): Payment {
         val partner = partnerRepository.findById(command.partnerId)
-            ?: throw IllegalArgumentException("Partner not found: ${command.partnerId}")
+                ?: throw IllegalArgumentException("Partner not found: ${command.partnerId}")
         require(partner.active) { "Partner is inactive: ${partner.id}" }
 
         val pgClient = pgClients.firstOrNull { it.supports(partner.id) }
-            ?: throw IllegalStateException("No PG client for partner ${partner.id}")
+                ?: throw IllegalStateException("No PG client for partner ${partner.id}")
 
         val approve = pgClient.approve(
-            PgApproveRequest(
+                PgApproveRequest(
+                        partnerId = partner.id,
+                        amount = command.amount,
+                        cardBin = command.cardBin,
+                        cardLast4 = command.cardLast4,
+                        productName = command.productName,
+                ),
+        )
+
+        // 하드코드된 부분을 제휴사별 정책으로 변경
+        val feePolicy = feePolicyRepository.findEffectivePolicy(partner.id)
+                ?: throw IllegalStateException("No fee policy found for partner ${partner.id}")
+
+        val (fee, net) = FeeCalculator.calculateFee(
+                command.amount,
+                feePolicy.percentage,
+                feePolicy.fixedFee
+        )
+
+        val payment = Payment(
                 partnerId = partner.id,
                 amount = command.amount,
+                appliedFeeRate = feePolicy.percentage,
+                feeAmount = fee,
+                netAmount = net,
                 cardBin = command.cardBin,
                 cardLast4 = command.cardLast4,
-                productName = command.productName,
-            ),
-        )
-        val hardcodedRate = java.math.BigDecimal("0.0300")
-        val hardcodedFixed = java.math.BigDecimal("100")
-        val (fee, net) = FeeCalculator.calculateFee(command.amount, hardcodedRate, hardcodedFixed)
-        val payment = Payment(
-            partnerId = partner.id,
-            amount = command.amount,
-            appliedFeeRate = hardcodedRate,
-            feeAmount = fee,
-            netAmount = net,
-            cardBin = command.cardBin,
-            cardLast4 = command.cardLast4,
-            approvalCode = approve.approvalCode,
-            approvedAt = approve.approvedAt,
-            status = PaymentStatus.APPROVED,
+                approvalCode = approve.approvalCode,
+                approvedAt = approve.approvedAt,
+                status = PaymentStatus.APPROVED,
         )
 
         return paymentRepository.save(payment)
