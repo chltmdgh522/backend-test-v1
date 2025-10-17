@@ -20,6 +20,8 @@ spring-boot-starter-logging = { module = "org.springframework.boot:spring-boot-s
 spring-context = { module = "org.springframework:spring-context" }
 spring-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
+spring-tx = { module = "org.springframework:spring-tx" }
+
 database-h2 = { module = "com.h2database:h2" }
 database-mariadb = { module = "org.mariadb.jdbc:mariadb-java-client" }
 

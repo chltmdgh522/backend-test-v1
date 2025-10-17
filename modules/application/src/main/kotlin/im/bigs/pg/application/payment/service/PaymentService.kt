@@ -11,6 +11,7 @@ import im.bigs.pg.domain.calculation.FeeCalculator
 import im.bigs.pg.domain.payment.Payment
 import im.bigs.pg.domain.payment.PaymentStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * 결제 생성 유스케이스 구현체.
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service
  * - 수수료 정책 조회 및 적용(계산)은 도메인 유틸리티를 통해 수행합니다.
  */
 @Service
+@Transactional
 class PaymentService(
     private val partnerRepository: PartnerOutPort,
     private val feePolicyRepository: FeePolicyOutPort,
