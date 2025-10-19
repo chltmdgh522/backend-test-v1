@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class PaymentService(
     private val partnerRepository: PartnerOutPort,
-    private val feePolicyRepository: FeePolicyOutPort,
+    private val feePolicyOutPort: FeePolicyOutPort,
     private val paymentRepository: PaymentOutPort,
     private val pgClients: List<PgClientOutPort>,
 ) : PaymentUseCase {
@@ -51,7 +51,7 @@ class PaymentService(
         )
 
         // 하드코드된 부분을 제휴사별 정책으로 변경
-        val feePolicy = feePolicyRepository.findEffectivePolicy(partner.id)
+        val feePolicy = feePolicyOutPort.findEffectivePolicy(partner.id)
                 ?: throw IllegalStateException("No fee policy found for partner ${partner.id}")
 
         val (fee, net) = FeeCalculator.calculateFee(
