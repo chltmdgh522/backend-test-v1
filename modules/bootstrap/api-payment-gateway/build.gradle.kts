@@ -8,7 +8,7 @@ tasks.bootJar {
 }
 
 springBoot {
-    mainClass.set("im.bigs.pg.api.PgApiApplication")
+    mainClass.set("im.bigs.pg.api.PgApiApplicationKt")
 }
 
 dependencies {
