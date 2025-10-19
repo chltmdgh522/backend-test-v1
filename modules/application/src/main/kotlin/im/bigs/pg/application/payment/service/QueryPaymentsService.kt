@@ -2,7 +2,6 @@ package im.bigs.pg.application.payment.service
 
 import im.bigs.pg.application.payment.port.`in`.*
 import im.bigs.pg.application.payment.port.out.*
-import im.bigs.pg.domain.payment.Payment
 import im.bigs.pg.domain.payment.PaymentStatus
 import im.bigs.pg.domain.payment.PaymentSummary
 import org.springframework.stereotype.Service
@@ -18,7 +17,7 @@ import java.util.Base64
  */
 @Service
 class QueryPaymentsService(
-        private val paymentOutPort: PaymentOutPort
+    private val paymentOutPort: PaymentOutPort
 ) : QueryPaymentsUseCase {
     /**
      * 필터를 기반으로 결제 내역을 조회합니다.
@@ -40,13 +39,13 @@ class QueryPaymentsService(
             }
         }
         val query = PaymentQuery(
-                partnerId = filter.partnerId,
-                status = paymentStatus,
-                from = filter.from,
-                to = filter.to,
-                limit = filter.limit,
-                cursorCreatedAt = cursorCreatedAt,
-                cursorId = cursorId
+            partnerId = filter.partnerId,
+            status = paymentStatus,
+            from = filter.from,
+            to = filter.to,
+            limit = filter.limit,
+            cursorCreatedAt = cursorCreatedAt,
+            cursorId = cursorId
         )
 
         // 3. 페이지네이션 결과 조회
@@ -54,16 +53,16 @@ class QueryPaymentsService(
 
         // 4. 통계 조회 (동일한 필터 조건으로)
         val summaryFilter = PaymentSummaryFilter(
-                partnerId = filter.partnerId,
-                status = paymentStatus,
-                from = filter.from,
-                to = filter.to
+            partnerId = filter.partnerId,
+            status = paymentStatus,
+            from = filter.from,
+            to = filter.to
         )
         val summaryProjection = paymentOutPort.summary(summaryFilter)
         val summary = PaymentSummary(
-                count = summaryProjection.count,
-                totalAmount = summaryProjection.totalAmount,
-                totalNetAmount = summaryProjection.totalNetAmount
+            count = summaryProjection.count,
+            totalAmount = summaryProjection.totalAmount,
+            totalNetAmount = summaryProjection.totalNetAmount
         )
 
         // 5. 다음 페이지 커서 생성
@@ -75,10 +74,10 @@ class QueryPaymentsService(
 
         // 6. QueryResult 반환
         return QueryResult(
-                items = page.items,
-                summary = summary,
-                nextCursor = nextCursor,
-                hasNext = page.hasNext
+            items = page.items,
+            summary = summary,
+            nextCursor = nextCursor,
+            hasNext = page.hasNext
         )
     }
 
@@ -91,7 +90,6 @@ class QueryPaymentsService(
      * 장점: 데이터 누락이나 중복 없이 대용량 데이터를 효율적으로 탐색할 수 있으며, 데이터베이스 인덱스를 효과적으로 활용해 성능이 우수합니다.
      *
      * */
-
 
     /** 다음 페이지 이동을 위한 커서 인코딩. */
     private fun encodeCursor(createdAt: Instant?, id: Long?): String? {

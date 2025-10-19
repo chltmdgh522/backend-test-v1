@@ -10,17 +10,16 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import javax.crypto.spec.SecretKeySpec
-import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.Cipher
 import java.security.MessageDigest
+import java.time.LocalDateTime
 import java.util.Base64
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 @Component
 class TestPgClient(
-        private val restTemplate: RestTemplate
+    private val restTemplate: RestTemplate
 ) : PgClientOutPort {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -63,12 +62,12 @@ class TestPgClient(
 
             // API 호출
             val response = restTemplate.postForObject(url, entity, Map::class.java)
-                    ?: throw IllegalStateException("No response from TestPg API")
+                ?: throw IllegalStateException("No response from TestPg API")
 
             return PgApproveResult(
-                    approvalCode = response["approvalCode"] as String,
-                    approvedAt = LocalDateTime.parse(response["approvedAt"] as String),
-                    status = PaymentStatus.APPROVED
+                approvalCode = response["approvalCode"] as String,
+                approvedAt = LocalDateTime.parse(response["approvedAt"] as String),
+                status = PaymentStatus.APPROVED
             )
         } catch (e: Exception) {
             log.error("TestPG API 호출 중 오류: ${e.message}", e)

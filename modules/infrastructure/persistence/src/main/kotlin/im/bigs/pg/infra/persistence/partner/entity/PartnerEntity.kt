@@ -14,12 +14,12 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "partner")
 class PartnerEntity(
-        @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long? = null,
-        @Column(nullable = false, unique = true)
-        var code: String = "", // 기본값 추가
-        @Column(nullable = false)
-        var name: String = "", // 기본값 추가
-        @Column(nullable = false)
-        var active: Boolean = true,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+    @Column(nullable = false, unique = true)
+    var code: String = "", // 기본값 추가
+    @Column(nullable = false)
+    var name: String = "", // 기본값 추가
+    @Column(nullable = false)
+    var active: Boolean = true,
 )

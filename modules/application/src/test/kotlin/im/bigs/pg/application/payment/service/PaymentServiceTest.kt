@@ -30,7 +30,7 @@ class 결제서비스Test {
     private val pgClient = object : PgClientOutPort {
         override fun supports(partnerId: Long) = true
         override fun approve(request: PgApproveRequest) =
-            PgApproveResult("APPROVAL-123", LocalDateTime.of(2024,1,1,0,0), PaymentStatus.APPROVED)
+            PgApproveResult("APPROVAL-123", LocalDateTime.of(2024, 1, 1, 0, 0), PaymentStatus.APPROVED)
     }
 
     @Test
@@ -64,8 +64,8 @@ class 결제서비스Test {
 
         // 2.35%의 수수료율, 고정 수수료 없음
         every { feeRepo.findEffectivePolicy(1L, any()) } returns FeePolicy(
-                id = 1L, partnerId = 1L, effectiveFrom = LocalDateTime.ofInstant(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC),
-                percentage = BigDecimal("0.0235"), fixedFee = null // 0.03
+            id = 1L, partnerId = 1L, effectiveFrom = LocalDateTime.ofInstant(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC),
+            percentage = BigDecimal("0.0235"), fixedFee = null // 0.03
         )
 
         val savedSlot = slot<Payment>()
@@ -83,11 +83,11 @@ class 결제서비스Test {
         // ===== [Case 2] 파트너 2번: 3% + 고정 수수료 100원 =====
         every { partnerRepo.findById(2L) } returns Partner(2L, "ALPHA", "Alpha Partner", true)
         every { feeRepo.findEffectivePolicy(2L, any()) } returns FeePolicy(
-                id = 2L,
-                partnerId = 2L,
-                effectiveFrom = LocalDateTime.ofInstant(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC),
-                percentage = BigDecimal("0.03"),
-                fixedFee = BigDecimal("100")
+            id = 2L,
+            partnerId = 2L,
+            effectiveFrom = LocalDateTime.ofInstant(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC),
+            percentage = BigDecimal("0.03"),
+            fixedFee = BigDecimal("100")
         )
 
         val savedSlot2 = slot<Payment>()
@@ -141,4 +141,3 @@ class 결제서비스Test {
         assertThrows<IllegalStateException> { service.pay(cmd) }
     }
 }
-
