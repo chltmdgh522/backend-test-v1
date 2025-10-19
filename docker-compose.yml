@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  app:
+    image: chltmdgh522/bigs:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=pgdb
+      - DB_USER=pguser
+      - DB_PASSWORD=pgpass
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=0522
+      - MYSQL_DATABASE=pgdb
+      - MYSQL_USER=pguser
+      - MYSQL_PASSWORD=pgpass
+      - MYSQL_ROOT_HOST=%
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mariadb-data:/var/lib/mysql
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    user: "65534:65534"   # nobody 유저 (Prometheus 기본 실행 계정)
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    user: "472:472"       # grafana 기본 실행 계정
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
