@@ -14,9 +14,12 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+
+# 서버 설정
 server:
   port: 8080
 
+# 모니터링 설정
 management:
   endpoints:
     web:
@@ -25,7 +28,6 @@ management:
   endpoint:
     prometheus:
       enabled: true
-
   metrics:
     tags:
       application: bigs
@@ -35,3 +37,14 @@ management:
           autotime:
             enabled: true
 
+# SpringDoc/Swagger 설정
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    disable-swagger-default-url: true
+  show-actuator: false
+  packages-to-scan: im.bigs.pg.api

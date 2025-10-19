@@ -8,7 +8,15 @@ import im.bigs.pg.application.payment.port.`in`.PaymentCommand
 import im.bigs.pg.application.payment.port.`in`.PaymentUseCase
 import im.bigs.pg.application.payment.port.`in`.QueryFilter
 import im.bigs.pg.application.payment.port.`in`.QueryPaymentsUseCase
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,15 +35,11 @@ import java.time.LocalDateTime
 @RestController
 @RequestMapping("/api/v1/payments")
 @Validated
+@Tag(name = "결제 API", description = "결제 생성 및 조회 API")
 class PaymentController(
     private val paymentUseCase: PaymentUseCase,
     private val queryPaymentsUseCase: QueryPaymentsUseCase,
 ) {
-
-    /** 결제 생성 요청 페이로드(간소화된 필드). */
-
-    /** API 응답을 위한 변환용 DTO. 도메인 모델을 그대로 노출하지 않습니다. */
-
     /**
      * 결제 생성.
      *
@@ -43,7 +47,22 @@ class PaymentController(
      * @return 생성된 결제 요약 응답
      */
     @PostMapping
-    fun create(@RequestBody req: CreatePaymentRequest): ResponseEntity<PaymentResponse> {
+    @Operation(
+        summary = "결제 생성",
+        description = "결제 정보를 받아 결제를 처리하고, 수수료와 정산금을 포함한 결과를 반환합니다"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "결제 성공",
+                content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = Schema(implementation = PaymentResponse::class))]
+            ),
+            ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            ApiResponse(responseCode = "500", description = "서버 오류")
+        ]
+    )
+    fun create(@RequestBody @Validated req: CreatePaymentRequest): ResponseEntity<PaymentResponse> {
         val saved = paymentUseCase.pay(
             PaymentCommand(
                 partnerId = req.partnerId,
@@ -55,8 +74,6 @@ class PaymentController(
         )
         return ResponseEntity.ok(PaymentResponse.from(saved))
     }
-
-    /** 목록 + 통계를 포함한 조회 응답. */
 
     /**
      * 결제 조회(커서 기반 페이지네이션 + 통계).
@@ -70,13 +87,28 @@ class PaymentController(
      * @return 목록/통계/커서 정보
      */
     @GetMapping
+    @Operation(
+        summary = "결제 내역 조회",
+        description = "커서 기반 페이지네이션과 통계 정보를 포함한 결제 내역을 조회합니다"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = Schema(implementation = QueryResponse::class))]
+            ),
+            ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            ApiResponse(responseCode = "500", description = "서버 오류")
+        ]
+    )
     fun query(
-        @RequestParam(required = false) partnerId: Long?,
-        @RequestParam(required = false) status: String?,
-        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") from: LocalDateTime?,
-        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") to: LocalDateTime?,
-        @RequestParam(required = false) cursor: String?,
-        @RequestParam(defaultValue = "20") limit: Int,
+        @Parameter(description = "제휴사 ID") @RequestParam(required = false) partnerId: Long?,
+        @Parameter(description = "결제 상태(APPROVED, CANCELED)") @RequestParam(required = false) status: String?,
+        @Parameter(description = "조회 시작 일시(yyyy-MM-dd HH:mm:ss)") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") from: LocalDateTime?,
+        @Parameter(description = "조회 종료 일시(yyyy-MM-dd HH:mm:ss)") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") to: LocalDateTime?,
+        @Parameter(description = "페이지 커서(다음 페이지 조회시 사용)") @RequestParam(required = false) cursor: String?,
+        @Parameter(description = "한 페이지 결과 수") @RequestParam(defaultValue = "20") limit: Int,
     ): ResponseEntity<QueryResponse> {
         val res = queryPaymentsUseCase.query(
             QueryFilter(partnerId, status, from, to, cursor, limit),
