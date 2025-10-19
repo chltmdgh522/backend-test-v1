@@ -1,9 +1,14 @@
 package im.bigs.pg.application.payment.service
 
 import im.bigs.pg.application.payment.port.`in`.*
+import im.bigs.pg.application.payment.port.out.*
+import im.bigs.pg.domain.payment.Payment
+import im.bigs.pg.domain.payment.PaymentStatus
 import im.bigs.pg.domain.payment.PaymentSummary
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.Base64
 
 /**
@@ -12,24 +17,81 @@ import java.util.Base64
  * - 통계는 조회 조건과 동일한 집합을 대상으로 계산됩니다.
  */
 @Service
-class QueryPaymentsService : QueryPaymentsUseCase {
+class QueryPaymentsService(
+        private val paymentOutPort: PaymentOutPort
+) : QueryPaymentsUseCase {
     /**
      * 필터를 기반으로 결제 내역을 조회합니다.
-     *
-     * 현재 구현은 과제용 목업으로, 빈 결과를 반환합니다.
-     * 지원자는 커서 기반 페이지네이션과 통계 집계를 완성하세요.
      *
      * @param filter 파트너/상태/기간/커서/페이지 크기
      * @return 조회 결과(목록/통계/커서)
      */
     override fun query(filter: QueryFilter): QueryResult {
+        // 1. 커서 디코딩
+        val (cursorInstant, cursorId) = decodeCursor(filter.cursor)
+        val cursorCreatedAt = cursorInstant?.let { LocalDateTime.ofInstant(it, ZoneOffset.UTC) }
+
+        // 2. PaymentQuery 객체 생성 (커서와 필터 조건 적용)
+        val paymentStatus = filter.status?.let {
+            try {
+                PaymentStatus.valueOf(it)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }
+        val query = PaymentQuery(
+                partnerId = filter.partnerId,
+                status = paymentStatus,
+                from = filter.from,
+                to = filter.to,
+                limit = filter.limit,
+                cursorCreatedAt = cursorCreatedAt,
+                cursorId = cursorId
+        )
+
+        // 3. 페이지네이션 결과 조회
+        val page = paymentOutPort.findBy(query)
+
+        // 4. 통계 조회 (동일한 필터 조건으로)
+        val summaryFilter = PaymentSummaryFilter(
+                partnerId = filter.partnerId,
+                status = paymentStatus,
+                from = filter.from,
+                to = filter.to
+        )
+        val summaryProjection = paymentOutPort.summary(summaryFilter)
+        val summary = PaymentSummary(
+                count = summaryProjection.count,
+                totalAmount = summaryProjection.totalAmount,
+                totalNetAmount = summaryProjection.totalNetAmount
+        )
+
+        // 5. 다음 페이지 커서 생성
+        val nextCursor = if (page.hasNext && page.nextCursorCreatedAt != null && page.nextCursorId != null) {
+            encodeCursor(page.nextCursorCreatedAt.toInstant(ZoneOffset.UTC), page.nextCursorId)
+        } else {
+            null
+        }
+
+        // 6. QueryResult 반환
         return QueryResult(
-            items = emptyList(),
-            summary = PaymentSummary(count = 0, totalAmount = java.math.BigDecimal.ZERO, totalNetAmount = java.math.BigDecimal.ZERO),
-            nextCursor = null,
-            hasNext = false,
+                items = page.items,
+                summary = summary,
+                nextCursor = nextCursor,
+                hasNext = page.hasNext
         )
     }
+
+    /**
+     * 커서 인코딩과 디코딩 간단 설명
+     *
+     * 인코딩: 데이터베이스 조회 위치(생성시간+ID)를 문자열로 변환한 후 Base64로 암호화해서 URL에서 안전하게 전달할 수 있는 형태로 만듭니다.
+     * 디코딩: 받은 Base64 암호화 문자열을 원래 형태(생성시간+ID)로 복원해서 다음 데이터베이스 쿼리의 시작점으로 활용합니다.
+     * 목적: 페이지 번호 대신 마지막으로 본 항목 정보를 사용해 데이터가 추가되거나 삭제되어도 일관된 페이지 탐색이 가능합니다.
+     * 장점: 데이터 누락이나 중복 없이 대용량 데이터를 효율적으로 탐색할 수 있으며, 데이터베이스 인덱스를 효과적으로 활용해 성능이 우수합니다.
+     *
+     * */
+
 
     /** 다음 페이지 이동을 위한 커서 인코딩. */
     private fun encodeCursor(createdAt: Instant?, id: Long?): String? {
