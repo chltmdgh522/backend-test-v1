@@ -32,9 +32,9 @@ services:
   prometheus:
     image: prom/prometheus
     container_name: prometheus
-    user: "65534:65534"   # nobody 유저 (Prometheus 기본 실행 계정)
+    user: "65534:65534"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus-data:/prometheus
     ports:
       - "9090:9090"
