@@ -1,7 +1,11 @@
 package im.bigs.pg.application.payment.service
 
-import im.bigs.pg.application.payment.port.`in`.*
-import im.bigs.pg.application.payment.port.out.*
+import im.bigs.pg.application.payment.port.`in`.QueryFilter
+import im.bigs.pg.application.payment.port.out.PaymentOutPort
+import im.bigs.pg.application.payment.port.out.PaymentPage
+import im.bigs.pg.application.payment.port.out.PaymentQuery
+import im.bigs.pg.application.payment.port.out.PaymentSummaryFilter
+import im.bigs.pg.application.payment.port.out.PaymentSummaryProjection
 import im.bigs.pg.domain.payment.Payment
 import im.bigs.pg.domain.payment.PaymentStatus
 import io.mockk.every
@@ -17,7 +21,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class 결제조회서비스Test {
+class QueryPaymentsServiceTest {
 
     private val paymentOutPort = mockk<PaymentOutPort>()
     private val service = QueryPaymentsService(paymentOutPort)
