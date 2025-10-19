@@ -1,11 +1,6 @@
 package im.bigs.pg.infra.persistence.payment.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -14,7 +9,13 @@ import java.time.Instant
  * - createdAt/Id 조합을 커서 정렬 키로 사용합니다.
  */
 @Entity
-@Table(name = "payment")
+@Table(
+        name = "payment",
+        indexes = [
+                Index(name = "idx_payment_created", columnList = "created_at DESC, id DESC"),
+                Index(name = "idx_payment_partner_created", columnList = "partner_id, created_at DESC")
+        ]
+)
 class PaymentEntity(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long? = null,

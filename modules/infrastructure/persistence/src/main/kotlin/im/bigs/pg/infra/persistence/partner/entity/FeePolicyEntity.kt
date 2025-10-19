@@ -1,11 +1,6 @@
 package im.bigs.pg.infra.persistence.partner.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -14,7 +9,12 @@ import java.time.Instant
  * - 유효 시작 시점(effectiveFrom) 기준으로 최신 정책을 조회합니다.
  */
 @Entity
-@Table(name = "partner_fee_policy")
+@Table(
+        name = "partner_fee_policy",
+        indexes = [
+                Index(name = "idx_fee_partner_from", columnList = "partner_id, effective_from DESC")
+        ]
+)
 class FeePolicyEntity(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long? = null,
