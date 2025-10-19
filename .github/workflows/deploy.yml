@@ -33,7 +33,8 @@ jobs:
 
       # (5) Gradle 빌드 (테스트 제외)
       - name: Build with Gradle (skip tests)
-        run: ./gradlew clean build -x test
+        run: |
+          ./gradlew clean :modules:bootstrap:api-payment-gateway:bootJar -x test
 
       # (6) Docker 이미지 빌드
       - name: Build Docker Image

@@ -1,5 +1,5 @@
-FROM openjdk:22
-ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} /app.jar
+FROM openjdk:22-slim
+WORKDIR /app
+COPY modules/bootstrap/api-payment-gateway/build/libs/app.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

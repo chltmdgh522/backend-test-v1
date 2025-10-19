@@ -4,6 +4,11 @@ tasks.jar {
 
 tasks.bootJar {
     enabled = true
+    archiveFileName.set("app.jar")
+}
+
+springBoot {
+    mainClass.set("im.bigs.pg.api.PgApiApplication")
 }
 
 dependencies {
