@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mariadb://43.201.27.162:3307/pgdb
+    url: jdbc:mariadb://db:3306/pgdb
     driver-class-name: org.mariadb.jdbc.Driver
     username: pguser
     password: pgpass
