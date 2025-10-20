@@ -19,6 +19,9 @@ dependencies {
     implementation(libs.spring.boot.starter.jpa)
     implementation(libs.bundles.bootstrap)
 
+
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
 
     testImplementation(libs.bundles.test)
