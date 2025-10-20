@@ -1,5 +1,6 @@
 package im.bigs.pg.api.payment
 
+import im.bigs.pg.api.common.dto.ErrorResponse
 import im.bigs.pg.api.payment.dto.CreatePaymentRequest
 import im.bigs.pg.api.payment.dto.PaymentResponse
 import im.bigs.pg.api.payment.dto.QueryResponse
@@ -58,8 +59,16 @@ class PaymentController(
                 description = "결제 성공",
                 content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = Schema(implementation = PaymentResponse::class))]
             ),
-            ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            ApiResponse(responseCode = "500", description = "서버 오류")
+            ApiResponse(
+                responseCode = "500",
+                description = "서버 내부 오류",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            )
         ]
     )
     fun create(@RequestBody @Validated req: CreatePaymentRequest): ResponseEntity<PaymentResponse> {
@@ -98,8 +107,16 @@ class PaymentController(
                 description = "조회 성공",
                 content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = Schema(implementation = QueryResponse::class))]
             ),
-            ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            ApiResponse(responseCode = "500", description = "서버 오류")
+            ApiResponse(
+                responseCode = "500",
+                description = "서버 내부 오류",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            )
         ]
     )
     fun query(
