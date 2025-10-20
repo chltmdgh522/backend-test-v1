@@ -27,7 +27,7 @@ class TestPgClient(
     private val apiKey = "11111111-1111-4111-8111-111111111111"
     private val iv = "AAAAAAAAAAAAAAAA"
 
-    override fun supports(partnerId: Long): Boolean = partnerId % 2L == 0L
+    override fun supports(partnerId: Long): Boolean = partnerId % 2L == 0L && partnerId % 3L != 0L
 
     override fun approve(request: PgApproveRequest): PgApproveResult {
 
